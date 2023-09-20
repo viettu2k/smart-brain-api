@@ -1,7 +1,7 @@
 const Clarifai = require('clarifai');
 
 const app = new Clarifai.App({
-  apiKey: 'YOUR_API_KEY_HERE',
+  apiKey: 'CLARIFI_API_KEY',
 });
 
 const handleApiCall = (req, res) => {
@@ -15,6 +15,7 @@ const handleApiCall = (req, res) => {
 
 const handleImage = (req, res, db) => {
   const { id } = req.body;
+
   db('users')
     .where('id', '=', id)
     .increment('entries', 1)
