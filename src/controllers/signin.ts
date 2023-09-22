@@ -3,7 +3,7 @@ import redis from 'redis'
 import { Request, Response } from 'express'
 
 const redisClient = redis.createClient({
-  url: 'redis://alice:foobared@awesome.redis.server:6380'
+  url: process.env.REDIS_URL
 })
 
 async function redisConnect() {
@@ -14,17 +14,22 @@ redisConnect()
 
 const signToken = (username: string) => jwt.sign({ username }, 'JWT_SECRET_KEY', { expiresIn: '2 days' })
 
-const setToken = (key: string, value: string) =>
-  new Promise<string>((resolve, reject) => {
-    redisClient.set(key, value, (err: any, reply: any) => {
-      if (err) {
-        reject(err)
-      } else {
+const setToken = (key: string, value: string) => {
+  return new Promise<string>((resolve, reject) => {
+    // Use the `redisClient.set` method to set the key-value pair in Redis.
+    // It takes the key, value, and returns a Promise.
+    redisClient
+      .set(key, value)
+      .then((reply: any) => {
+        // If successful, resolve the Promise with the Redis reply.
         resolve(reply)
-      }
-    })
+      })
+      .catch((err: any) => {
+        // If there's an error, reject the Promise with the error.
+        reject(err)
+      })
   })
-
+}
 const createSession = (user: { email: string; id: string }) => {
   const { email, id } = user
   const token = signToken(email)
@@ -63,11 +68,19 @@ const handleSignin = (db: any, bcrypt: any, req: Request, res: Response) => {
 const getAuthTokenId = (req: Request, res: Response) => {
   const { authorization } = req.headers
 
-  return redisClient.get(authorization as string, (err: any, reply: any) => {
-    if (err || !reply) return res.status(401).send('Unauthorized')
+  redisClient
+    .get(authorization as string)
+    .then((reply: any) => {
+      if (!reply) {
+        return res.status(401).send('Unauthorized')
+      }
 
-    return res.json({ id: reply })
-  })
+      return res.json({ id: reply })
+    })
+    .catch((err: any) => {
+      console.error('Error retrieving token:', err)
+      return res.status(500).send('Internal Server Error')
+    })
 }
 
 const signinAuthentication = (db: any, bcrypt: any) => (req: Request, res: Response) => {
