@@ -7,11 +7,8 @@ const handleProfileGet = (req: Request, res: Response, db: any): void => {
     .from('users')
     .where({ id })
     .then((user: any[]) => {
-      if (user.length) {
-        res.json(user[0])
-      } else {
-        res.status(400).json('Not found')
-      }
+      if (user.length) res.json(user[0])
+      else res.status(400).json('Not found')
     })
     .catch((err: any) => res.status(400).json('error getting user'))
 }
@@ -24,13 +21,10 @@ const handleProfileUpdate = (req: Request, res: Response, db: any): void => {
     .where({ id })
     .update({ name: name })
     .then((resp: number) => {
-      if (resp) {
-        res.json('success')
-      } else {
-        res.status(400).json('Not found')
-      }
+      if (resp) res.json('success')
+      else res.status(400).json('Not found')
     })
     .catch((err: any) => res.status(400).json('error updating user'))
 }
 
-export { handleProfileGet, handleProfileUpdate }
+export default { handleProfileGet, handleProfileUpdate }

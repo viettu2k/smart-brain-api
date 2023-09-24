@@ -3,9 +3,7 @@ import { Request, Response } from 'express'
 const handleRegister = (req: Request, res: Response, db: any, bcrypt: any) => {
   const { email, name, password } = req.body
 
-  if (!email || !name || !password) {
-    return res.status(400).json('incorrect form submission')
-  }
+  if (!email || !name || !password) return res.status(400).json('incorrect form submission')
 
   const hash = bcrypt.hashSync(password, 10)
 
@@ -34,4 +32,4 @@ const handleRegister = (req: Request, res: Response, db: any, bcrypt: any) => {
   }).catch((err: any) => res.status(400).json('unable to register'))
 }
 
-export { handleRegister }
+export default { handleRegister }
