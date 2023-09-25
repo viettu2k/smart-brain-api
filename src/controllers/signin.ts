@@ -3,7 +3,7 @@ import redis from 'redis'
 import { Request, Response } from 'express'
 
 const redisClient = redis.createClient({
-  url: process.env.REDIS_URL
+  url: process.env.REDIS_URI
 })
 
 async function redisConnect() {
